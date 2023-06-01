@@ -1,0 +1,28 @@
+<html>
+  <title> </title>
+  <body>
+    <h2>Praktikum Back End</h2>
+    <p>Kelas K Teknik Informatika Malam</p>
+    <div></div>
+  </body>
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $.get("http://localhost:5000/uji1", function (data) {
+        console.log(data.data);
+        data.data.forEach((element) => {
+          $("div").append(`<p>${element.nim}</p>`);
+          $("div").append(`<p>${element.nama}</p>`);
+          $("div").append(`<p>${element.prodi}</p>`);
+          $("div").append(`<p>${element.fakultas}</p>`);
+          $("div").append(`<p>${element.noTelp}</p>`);
+        });
+      });
+      $(document).on("click", "button", function () {
+        $.ajax({
+          url: "",
+        }).done(function (call) {});
+      });
+    });
+  </script>
+</html>

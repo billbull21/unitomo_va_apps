@@ -555,7 +555,6 @@ exports.login = async function (req, res, next) {
     "apiKeyAuth": []
   }] */
 
-  console.log("REQUESTT : ", req);
   const errors = validationResult(req);
   if (!errors.isEmpty())
     return res.status(400).json({

@@ -10,6 +10,9 @@ const path = require("path");
 const swaggerUI = require("swagger-ui-express");
 const swaggerFile = require("./swagger_output.json");
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+
 app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 

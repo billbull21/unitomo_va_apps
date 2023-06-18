@@ -150,13 +150,13 @@ exports.create = async function (req, res) {
         .catch((error) => {
           if (error.nativeError) {
             if (error.nativeError.code == 23505) {
-              return res.json({
+              return res.status(400).json({
                 success: false,
                 message: `Registrasi Gagal, ${error.columns} sudah terdaftar!`,
               });
             }
           }
-          return res.json({
+          return res.status(400).json({
             success: false,
             message: `Registrasi Gagal, ${error}`,
           });
@@ -164,7 +164,7 @@ exports.create = async function (req, res) {
     });
   } catch (error) {
     console.log(error);
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: "Registrasi Gagal, Internal server error !",
     });
@@ -299,7 +299,7 @@ exports.updatePassword = async function (req, res) {
         .compare(data.password, cek_user[0].password)
         .then(async (isAuthenticated) => {
           if (!isAuthenticated) {
-            res.json({
+            res.status(400).json({
               success: false,
               message: "Password yang Anda masukkan, salah!",
             });

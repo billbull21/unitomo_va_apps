@@ -65,14 +65,14 @@ exports.insertVA = async function (req, res) {
       })
       .catch((error) => {
         console.log("ERR:", error);
-        return res.json({
+        return res.status(400).json({
           success: false,
           message: `Input data failed, ${error.nativeError.detail} `,
         });
       });
   } catch (error) {
     console.log(error);
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: "Input data failed, Internal server error !",
     });
@@ -105,14 +105,14 @@ exports.updateStatusVA = async function (req, res) {
       })
       .catch((error) => {
         console.log("ERR:", error);
-        return res.json({
+        return res.status(400).json({
           success: false,
-          message: `Registrasi Gagal, ${error.nativeError.detail} `,
+          message: `Update status gagal, ${error.nativeError.detail} `,
         });
       });
   } catch (error) {
     console.log(error);
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: "Registrasi Gagal, Internal server error !",
     });

@@ -25,7 +25,7 @@ exports.get = async function (req, res) {
     } else {
       return res.status(400).json({
         success: false,
-        message: "Data tidak detmukan!",
+        message: "Data tidak ditemukan!",
       });
     }
   } catch (err) {
@@ -348,6 +348,7 @@ exports.resendVerification = async function (req, res) {
   /* #swagger.tags = ['User']
     #swagger.description = 'Endpoint untuk mengirim ulang OTP' */
   try {
+    console.log('maasuk siniii cokkkkk');
     const cek_user = await knex.raw(
       `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u.id='${req.user.id}'`
     );
@@ -528,7 +529,7 @@ exports.delete = async function (req, res) {
     } else {
       res.status(400).json({
         success: false,
-        message: "Data tidak detmukan!",
+        message: "Data tidak ditemukan!",
       });
     }
   } catch (err) {

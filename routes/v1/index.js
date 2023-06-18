@@ -22,9 +22,9 @@ var mProdiApi = require("../../api/controller/MProdiController");
 // User
 router.get("/user", authenticateJWT, userApi.get);
 router.get("/user/data", authenticateJWT, userApi.getUserData); // get user data by it's token
-router.get("/user/:nim", authenticateJWT, userApi.getByNIM);
-router.get("/user/verification/:otp", authenticateJWT, userApi.otpVerification);
+router.get("/user/get-user-by-nim/:nim", authenticateJWT, userApi.getByNIM);
 router.get("/user/resend-verification", authenticateJWT, userApi.resendVerification);
+router.get("/user/verification/:otp", authenticateJWT, userApi.otpVerification);
 router.post("/user/forgot-password", forgotPasswordValidation, userApi.forgotPassword);
 router.post("/user/reset-password", resetPasswordValidation, userApi.resetPassword);
 router.post("/user", createUserValidation, userApi.create);

@@ -9,7 +9,7 @@ exports.getVAHistory = async function (req, res) {
     let queryResult = await VAHistory.query().where("user_id", req.user.id);
     return res.status(200).json({
       success: true,
-      data: queryResult ?? [],
+      data: queryResult,
     });
   } catch (err) {
     console.log(err);

@@ -11,7 +11,7 @@ exports.getMasterProdi = async function (req, res) {
     let queryResult = await MProdi.query();
     return res.status(200).json({
       success: true,
-      data: queryResult ?? [],
+      data: queryResult,
     });
   } catch (err) {
     console.log(err);

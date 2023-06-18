@@ -37,6 +37,24 @@ exports.get = async function (req, res) {
   }
 };
 
+exports.getUserData = async function (req, res) {
+  /* #swagger.tags = ['User']
+     #swagger.description = 'Endpoint to fetch user data by token' 
+  */
+  try {
+    return res.status(200).json({
+      success: true,
+      data: req.user,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 exports.getByNIM = async function (req, res) {
   /* #swagger.tags = ['User']
      #swagger.description = 'Endpoint to get user by NIM' 

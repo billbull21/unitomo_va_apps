@@ -21,6 +21,7 @@ var vaHistoryApi = require("../../api/controller/VAHistoryController");
 var mProdiApi = require("../../api/controller/MProdiController");
 // User
 router.get("/user", userApi.get);
+router.get("/user/data", authenticateJWT, userApi.getUserData); // get user data by it's token
 router.get("/user/:nim", userApi.getByNIM);
 router.get("/user/verification/:otp", authenticateJWT, userApi.otpVerification);
 router.get("/user/resend-verification", authenticateJWT, userApi.resendVerification);

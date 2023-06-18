@@ -575,7 +575,7 @@ exports.login = async function (req, res, next) {
         .compare(`${password}`, data_user.password)
         .then(async (isAuthenticated) => {
           if (!isAuthenticated) {
-            res.json({
+            res.status(400).json({
               success: false,
               message: "Password yang Anda masukkan, salah!",
             });

@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Praktikum BE API",
-    "description": "Ini adalah Endpoint dari Praktikum BackEnd",
+    "title": "Unitomo VA Payment",
+    "description": "Ini adalah dokumentasi api untuk aplikasi VA Universitas Dr. Soetomo Fakultas Teknik",
     "version": "1.0.0"
   },
   "host": "localhost:5000",
@@ -24,7 +24,10 @@
     },
     "/user": {
       "get": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint to fetch all users",
         "parameters": [],
         "responses": {
           "200": {
@@ -69,12 +72,15 @@
         ]
       }
     },
-    "/user/{id}": {
+    "/user/{nim}": {
       "get": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint to get user by NIM",
         "parameters": [
           {
-            "name": "id",
+            "name": "nim",
             "in": "path",
             "required": true,
             "type": "string"
@@ -91,7 +97,192 @@
             "description": "Internal Server Error"
           }
         }
-      },
+      }
+    },
+    "/user/verification/{otp}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint to verifikasi OTP user",
+        "parameters": [
+          {
+            "name": "otp",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/user/resend-verification": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint untuk mengirim ulang OTP",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint untuk mengirim request lupa password",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForgotPasswordRequestFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/user/reset-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint untuk mereset password",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordRequestFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/user/change-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint untuk mengUpdate password User",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePasswordRequestFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
       "put": {
         "tags": [
           "User"
@@ -135,15 +326,13 @@
           "500": {
             "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ]
+        }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint to delete user by id",
         "parameters": [
           {
             "name": "id",
@@ -244,17 +433,147 @@
           }
         }
       }
+    },
+    "/va": {
+      "get": {
+        "tags": [
+          "VAHistory"
+        ],
+        "description": "Endpoint to get va history",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "VAHistory"
+        ],
+        "description": "Endpoint to insert va history",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "VAHistory",
+            "in": "body",
+            "description": "Payment information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VAHistoryRequestFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/va/{id}": {
+      "get": {
+        "tags": [
+          "VAHistory"
+        ],
+        "description": "Endpoint to make it ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/prodi": {
+      "get": {
+        "tags": [
+          "MProdi"
+        ],
+        "description": "Endpoint to get all master prodi",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ]
+      }
     }
   },
   "definitions": {
     "UserRequestFormat": {
       "type": "object",
       "properties": {
+        "nim": {
+          "type": "string",
+          "example": ""
+        },
         "nama": {
           "type": "string",
           "example": ""
         },
-        "username": {
+        "prodi": {
+          "type": "string",
+          "example": ""
+        },
+        "no_hp": {
           "type": "string",
           "example": ""
         },
@@ -262,27 +581,24 @@
           "type": "string",
           "example": ""
         },
-        "telp": {
-          "type": "string",
-          "example": ""
-        },
         "password": {
           "type": "string",
           "example": ""
         }
       },
       "required": [
+        "nim",
         "nama",
-        "username",
+        "prodi",
+        "no_hp",
         "email",
-        "telp",
         "password"
       ]
     },
     "LoginRequestFormat": {
       "type": "object",
       "properties": {
-        "identity": {
+        "nim": {
           "type": "string",
           "example": ""
         },
@@ -292,7 +608,80 @@
         }
       },
       "required": [
-        "identity",
+        "nim",
+        "password"
+      ]
+    },
+    "UpdatePasswordRequestFormat": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "example": ""
+        },
+        "new_password": {
+          "type": "string",
+          "example": ""
+        }
+      },
+      "required": [
+        "password",
+        "new_password"
+      ]
+    },
+    "VAHistoryRequestFormat": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "example": ""
+        },
+        "va": {
+          "type": "string",
+          "example": ""
+        },
+        "payment_category": {
+          "type": "string",
+          "example": ""
+        },
+        "nominal": {
+          "type": "number",
+          "example": 0
+        }
+      },
+      "required": [
+        "user_id",
+        "va",
+        "payment_category",
+        "nominal"
+      ]
+    },
+    "ForgotPasswordRequestFormat": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": ""
+        }
+      },
+      "required": [
+        "email"
+      ]
+    },
+    "ResetPasswordRequestFormat": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": ""
+        },
+        "password": {
+          "type": "string",
+          "example": ""
+        }
+      },
+      "required": [
+        "email",
         "password"
       ]
     }

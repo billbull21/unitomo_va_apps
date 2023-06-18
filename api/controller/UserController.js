@@ -5,20 +5,25 @@ const knex = require("../../db/knex");
 const bcrypt = require("bcrypt");
 const moment = require("moment");
 const {
-  sendEmailOnCreateUser,
   sendEmailOnCreateUserWithTemplate,
+  sendEmailUpdatePasswordWithTemplate,
+  sendEmailForgotPasswordWithTemplate,
 } = require("../services/email.service");
+const MProdi = require("../model/MProdi");
 
 exports.get = async function (req, res) {
+  /* #swagger.tags = ['User']
+     #swagger.description = 'Endpoint to fetch all users' 
+  */
   try {
     let users = await User.query();
     if (users.length > 0) {
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: users,
       });
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Data tidak detmukan!",
       });
@@ -31,18 +36,22 @@ exports.get = async function (req, res) {
     });
   }
 };
-exports.getById = async function (req, res) {
+
+exports.getByNIM = async function (req, res) {
+  /* #swagger.tags = ['User']
+     #swagger.description = 'Endpoint to get user by NIM' 
+  */
   try {
-    let users = await User.query().where("id", "=", req.params.id);
+    let users = await User.query().where("nim", "=", req.params.nim);
     if (users.length > 0) {
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: users,
       });
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: "Data tidak detmukan!",
+        message: "Data tidak ditemukan!",
       });
     }
   } catch (err) {
@@ -53,6 +62,7 @@ exports.getById = async function (req, res) {
     });
   }
 };
+
 exports.create = async function (req, res) {
   /* #swagger.tags = ['User']
      #swagger.description = 'Endpoint to createUser' 
@@ -77,54 +87,110 @@ exports.create = async function (req, res) {
         errors: errors.array(),
       });
     const data = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000);
     bcrypt.hash(data.password, 10).then(async (hashedPassword) => {
       await User.query()
         .insert({
+          nim: data.nim,
           nama: data.nama,
-          username: data.username,
-          telp: data.telp,
+          prodi: data.prodi,
           email: data.email,
-          alamat: data.alamat,
-          gender: data.gender,
+          no_hp: data.no_hp,
+          otp: otp,
           password: hashedPassword,
         })
-        .returning([
-          "id",
-          "username",
-          "nama",
-          "email",
-          "telp",
-          "alamat",
-          "gender",
-        ])
+        .returning(["id", "nim", "nama", "email", "no_hp", "prodi"])
         .then(async (users) => {
-          const kirim_email = await sendEmailOnCreateUserWithTemplate(users);
-          res.status(200).json({
-            success: true,
-            message: "Anda Berhasil Terdaftar di Sistem Praktikum! ",
-            data: {
-              username: users.username,
+          if (data.email) {
+            const queryProdi = await MProdi.query()
+              .where("kdprodi", "=", users.prodi)
+              .limit(1);
+            users.prodi_id = users.prodi;
+            users.prodi = queryProdi[0].namaprodi;
+            // data jwt
+            const data_jwt = {
+              id: users.id,
               nama: users.nama,
+              nim: users.nim,
+              prodi_id: users.prodi_id,
+              prodi: users.prodi,
               email: users.email,
-              telp: users.telp,
-              alamat: users.alamat,
-              gender: users.gender,
-            },
-          });
+              no_hp: users.no_hp,
+              status: 0, // default
+            };
+            const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET);
+            await sendEmailOnCreateUserWithTemplate(users);
+            return res.status(200).json({
+              success: true,
+              message:
+                "Anda Berhasil Terdaftar di Sistem Informasi Pembayaran Teknik Unitomo!",
+              data: data_jwt,
+              jwt_token,
+            });
+          }
         })
         .catch((error) => {
-          console.log("ERR:", error);
-          res.json({
+          if (error.nativeError) {
+            if (error.nativeError.code == 23505) {
+              return res.json({
+                success: false,
+                message: `Registrasi Gagal, ${error.columns} sudah terdaftar!`,
+              });
+            }
+          }
+          return res.json({
             success: false,
-            message: `Registrasi Gagal, ${error.nativeError.detail} `,
+            message: `Registrasi Gagal, ${error}`,
           });
         });
     });
   } catch (error) {
     console.log(error);
-    res.json({
+    return res.json({
       success: false,
       message: "Registrasi Gagal, Internal server error !",
+    });
+  }
+};
+
+exports.otpVerification = async function (req, res) {
+  /* #swagger.tags = ['User']
+     #swagger.description = 'Endpoint to verifikasi OTP user' 
+  */
+  /* #swagger.security = [{
+    "apiKeyAuth": []
+  }] */
+
+  try {
+    let users = await User.query().where("id", "=", req.user.id);
+    if (users.length > 0) {
+      if (users[0].otp == req.params.otp) {
+        await User.query()
+          .patch({
+            status: 1,
+            updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+          })
+          .where("id", req.user.id);
+        return res.status(200).json({
+          success: true,
+          message: "Berhasil melakukan verifikasi",
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: "Kode OTP Tidak Valid!",
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Data tidak ditemukan!",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      success: false,
+      message: "Verifikasi Gagal, Internal server error !",
     });
   }
 };
@@ -139,9 +205,6 @@ exports.update = async function (req, res) {
     required: true,
     schema: { $ref: '#/definitions/UserRequestFormat' }
   } */
-  /* #swagger.security = [{
-    "apiKeyAuth": []
-  }] */
 
   const data = req.body;
   const { id } = req.params;
@@ -154,10 +217,10 @@ exports.update = async function (req, res) {
     });
   try {
     const cek_user = await User.query()
-      .where((builder) => {
-        builder.where("username", data.username).orWhere("email", data.email);
-      })
-      .where("id", "<>", id)
+      // .where((builder) => {
+      //   builder.where("nim", data.nim).orWhere("email", data.email);
+      // })
+      .where("id", id)
       .then((onCheck) => {
         console.log("Check, is Exist in other row :", onCheck);
         return onCheck;
@@ -171,19 +234,18 @@ exports.update = async function (req, res) {
     if (cek_user.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "Username atau Email Sudah Terdaftar !",
+        message: "NIM Sudah Terdaftar !",
       });
     } else {
       const dataUpdate = await User.query()
         .patch({
           nama: data.nama,
-          username: data.username,
           email: data.email,
-          telp: data.telp,
+          no_hp: data.no_hp,
           updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
         })
         .where("id", id)
-        .returning("nama", "username", "email")
+        .returning("nama", "nim", "email")
         .first()
         .then((resp) => {
           console.log("RESP:", resp);
@@ -209,7 +271,257 @@ exports.update = async function (req, res) {
   }
 };
 
+exports.updatePassword = async function (req, res) {
+  /* #swagger.tags = ['User']
+    #swagger.description = 'Endpoint untuk mengUpdate password User' */
+  /* #swagger.parameters['body'] = {
+    name: 'user',
+    in: 'body',
+    description: 'User information.',
+    required: true,
+    schema: { $ref: '#/definitions/UpdatePasswordRequestFormat' }
+  } */
+
+  const data = req.body;
+  // Check Form Validation
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
+  try {
+    const cek_user = await User.query().where("id", req.user.id);
+    console.log("CEK USER:", cek_user);
+    // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
+    if (cek_user.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User Tidak Terdaftar!",
+      });
+    } else {
+      bcrypt
+        .compare(data.password, cek_user[0].password)
+        .then(async (isAuthenticated) => {
+          if (!isAuthenticated) {
+            res.json({
+              success: false,
+              message: "Password yang Anda masukkan, salah!",
+            });
+          } else {
+            bcrypt.hash(data.new_password, 10).then(async (hashedPassword) => {
+              await User.query()
+                .patch({
+                  password: hashedPassword,
+                  updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+                })
+                .where("id", id)
+                .returning(["nama"])
+                .first()
+                .then(async (users) => {
+                  if (data.email) {
+                    await sendEmailUpdatePasswordWithTemplate({
+                      nama: users.nama,
+                      email: cek_user[0].email,
+                    });
+                    return res.status(200).json({
+                      success: true,
+                      message: "Anda Berhasil Mengupdate Password!",
+                    });
+                  }
+                })
+                .catch((err) => {
+                  res.status(400).json({
+                    success: false,
+                    message: "Gagal Mengubah Password!",
+                  });
+                });
+            });
+          }
+        });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Data user gagal di Update !",
+    });
+  }
+};
+
+exports.resendVerification = async function (req, res) {
+  /* #swagger.tags = ['User']
+    #swagger.description = 'Endpoint untuk mengirim ulang OTP' */
+  try {
+    const cek_user = await knex.raw(
+      `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u.id='${req.user.id}'`
+    );
+    // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
+    if (cek_user.rows.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User Tidak Terdaftar!",
+      });
+    } else {
+      const users = cek_user.rows[0];
+      await sendEmailOnCreateUserWithTemplate(users);
+      return res.status(200).json({
+        success: true,
+        message: "Silahkan cek ulang email Anda!",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error!",
+    });
+  }
+};
+
+exports.forgotPassword = async function (req, res) {
+  /* #swagger.tags = ['User']
+    #swagger.description = 'Endpoint untuk mengirim request lupa password' */
+  /* #swagger.parameters['body'] = {
+    name: 'user',
+    in: 'body',
+    description: 'User information.',
+    required: true,
+    schema: { $ref: '#/definitions/ForgotPasswordRequestFormat' }
+  } */
+  /* #swagger.security = [{
+    "apiKeyAuth": []
+  }] */
+
+  const data = req.body;
+  // Check Form Validation
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
+  try {
+    const email = data.email;
+    const cek_user = await User.query().where("email", email);
+    // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
+    if (cek_user.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User Tidak Terdaftar!",
+      });
+    } else {
+      const otp = Math.floor(100000 + Math.random() * 900000);
+      await User.query()
+        .patch({
+          otp: otp,
+          updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        })
+        .where("email", email)
+        .returning(["nama"])
+        .first()
+        .then(async (users) => {
+          await sendEmailForgotPasswordWithTemplate({
+            otp: otp,
+            nama: users.nama,
+            email: email,
+          });
+          return res.status(200).json({
+            success: true,
+            message: "Silahkan cek email Anda untuk mendapatkan kode OTP!",
+          });
+        })
+        .catch((err) => {
+          console.log("ERROR LUPA PASSWORD : ", err);
+          res.status(400).json({
+            success: false,
+            message: "Gagal Meminta OTP baru!",
+          });
+        });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error!",
+    });
+  }
+};
+
+exports.resetPassword = async function (req, res) {
+  /* #swagger.tags = ['User']
+    #swagger.description = 'Endpoint untuk mereset password' */
+  /* #swagger.parameters['body'] = {
+    name: 'user',
+    in: 'body',
+    description: 'User information.',
+    required: true,
+    schema: { $ref: '#/definitions/ResetPasswordRequestFormat' }
+  } */
+  /* #swagger.security = [{
+    "apiKeyAuth": []
+  }] */
+
+  const data = req.body;
+  // Check Form Validation
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
+  try {
+    const email = data.email;
+    const cek_user = await User.query().where("email", email);
+    // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
+    if (cek_user.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User Tidak Terdaftar!",
+      });
+    } else {
+      bcrypt.hash(data.password, 10).then(async (hashedPassword) => {
+        await User.query()
+          .patch({
+            password: hashedPassword,
+            updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+          })
+          .where("email", email)
+          .returning(["nama"])
+          .first()
+          .then(async (users) => {
+            if (data.email) {
+              await sendEmailUpdatePasswordWithTemplate({
+                nama: users.nama,
+                email: email,
+              });
+              return res.status(200).json({
+                success: true,
+                message: "Anda Berhasil Mereset Password!",
+              });
+            }
+          })
+          .catch((err) => {
+            res.status(400).json({
+              success: false,
+              message: "Gagal Mereset Password!",
+            });
+          });
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error!",
+    });
+  }
+};
+
 exports.delete = async function (req, res) {
+  /* #swagger.tags = ['User']
+     #swagger.description = 'Endpoint to delete user by id' 
+  */
   try {
     let users = await User.query().deleteById(req.params.id);
     console.log("USERS DELETE", users);
@@ -256,27 +568,32 @@ exports.login = async function (req, res, next) {
     });
   try {
     const data = req.body;
-    const identity = data.identity;
+    const nim = data.nim;
     const password = data.password;
-    const cek_user = await User.query().where((builder) => {
-      builder.where("username", identity).orWhere("email", identity);
-    });
-    // Akan menghasilkan query yg sama seperti select * from users where (username = 'identity'  or email = 'identity'
-    console.log("USER:", cek_user.length);
-    if (cek_user.length > 0) {
-      const data_user = cek_user[0];
+
+    const cek_user = await knex.raw(
+      `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u.nim='${nim}'`
+    );
+    if (cek_user.rows.length > 0) {
+      const data_user = cek_user.rows[0];
       bcrypt
-        .compare(password, data_user.password)
+        .compare(`${password}`, data_user.password)
         .then(async (isAuthenticated) => {
           if (!isAuthenticated) {
             res.json({
               success: false,
-              message: "Password yang Anda masukkan, salah !",
+              message: "Password yang Anda masukkan, salah!",
             });
           } else {
             const data_jwt = {
-              username: data_user.username,
+              id: data_user.id,
+              nama: data_user.nama,
+              nim: data_user.nim,
+              prodi_id: data_user.prodi,
+              prodi: data_user.namaprodi,
               email: data_user.email,
+              no_hp: data_user.no_hp,
+              status: data_user.status,
             };
             const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET, {
               expiresIn: "10m",
@@ -291,7 +608,7 @@ exports.login = async function (req, res, next) {
     } else {
       res.status(400).json({
         success: false,
-        message: "Username atau Email tidak terdaftar !",
+        message: "NIM tidak terdaftar!",
       });
     }
   } catch (err) {

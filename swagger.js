@@ -3,22 +3,40 @@ const outputFile = "./swagger_output.json";
 const endpointsFiles = ["./routes/v1/index.js"]; // root file dimana router dijalankan.
 const doc = {
   info: {
-    title: "Praktikum BE API",
-    description: "Ini adalah Endpoint dari Praktikum BackEnd",
+    title: "Unitomo VA Payment",
+    description: "Ini adalah dokumentasi api untuk aplikasi VA Universitas Dr. Soetomo Fakultas Teknik",
   },
   host: "localhost:5000",
   basePath: "/v1",
   schemes: ["http"],
   definitions: {
     UserRequestFormat: {
+      $nim: "",
       $nama: "",
-      $username: "",
+      $prodi: "",
+      $no_hp: "",
       $email: "",
-      $telp: "",
       $password: "",
     },
     LoginRequestFormat: {
-      $identity: "",
+      $nim: "",
+      $password: "",
+    },
+    UpdatePasswordRequestFormat: {
+      $password: "",
+      $new_password: "",
+    },
+    VAHistoryRequestFormat: {
+      $user_id: "",
+      $va: "",
+      $payment_category: "",
+      $nominal: 0,
+    },
+    ForgotPasswordRequestFormat: {
+      $email: "",
+    },
+    ResetPasswordRequestFormat: {
+      $email: "",
       $password: "",
     },
   },

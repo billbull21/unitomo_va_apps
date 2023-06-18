@@ -1,13 +1,13 @@
 const { Model } = require("objection");
 const knex = require("../../db/knex");
-const MProdi = require("./MProdi");
+const User = require("./User");
 Model.knex(knex);
-class User extends Model {
+class MProdi extends Model {
   static get tableName() {
-    return "users";
+    return "m_prodi";
   }
   static get idColumn() {
-    return ["id"];
+    return ["kdprodi"];
   }
 }
-module.exports = User;
+module.exports = MProdi;

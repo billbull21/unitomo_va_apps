@@ -1,12 +1,14 @@
+require("dotenv").config();
 const swaggerAutogen = require("swagger-autogen")();
 const outputFile = "./swagger_output.json";
 const endpointsFiles = ["./routes/v1/index.js"]; // root file dimana router dijalankan.
+const { BASE_URL } = process.env;
 const doc = {
   info: {
     title: "Unitomo VA Payment",
     description: "Ini adalah dokumentasi api untuk aplikasi VA Universitas Dr. Soetomo Fakultas Teknik",
   },
-  host: "localhost:5000",
+  host: `${BASE_URL}`,
   basePath: "/v1",
   schemes: ["http"],
   definitions: {

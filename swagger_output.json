@@ -70,6 +70,45 @@
             "apiKeyAuth": []
           }
         ]
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "description": "Endpoint untuk mengUpdate Data User",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateUserRequestFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/user/data": {
@@ -312,51 +351,6 @@
       }
     },
     "/user/{id}": {
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "description": "Endpoint untuk mengUpdate Data User",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User information.",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserRequestFormat"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "User"
@@ -622,6 +616,38 @@
         "no_hp",
         "email",
         "password"
+      ]
+    },
+    "UpdateUserRequestFormat": {
+      "type": "object",
+      "properties": {
+        "nim": {
+          "type": "string",
+          "example": ""
+        },
+        "nama": {
+          "type": "string",
+          "example": ""
+        },
+        "prodi": {
+          "type": "string",
+          "example": ""
+        },
+        "no_hp": {
+          "type": "string",
+          "example": ""
+        },
+        "email": {
+          "type": "string",
+          "example": ""
+        }
+      },
+      "required": [
+        "nim",
+        "nama",
+        "prodi",
+        "no_hp",
+        "email"
       ]
     },
     "LoginRequestFormat": {

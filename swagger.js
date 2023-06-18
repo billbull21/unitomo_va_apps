@@ -18,6 +18,13 @@ const doc = {
       $email: "",
       $password: "",
     },
+    UpdateUserRequestFormat: {
+      $nim: "",
+      $nama: "",
+      $prodi: "",
+      $no_hp: "",
+      $email: "",
+    },
     LoginRequestFormat: {
       $nim: "",
       $password: "",

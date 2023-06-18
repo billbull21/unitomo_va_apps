@@ -221,11 +221,10 @@ exports.update = async function (req, res) {
     in: 'body',
     description: 'User information.',
     required: true,
-    schema: { $ref: '#/definitions/UserRequestFormat' }
+    schema: { $ref: '#/definitions/UpdateUserRequestFormat' }
   } */
 
   const data = req.body;
-  const { id } = req.params;
   // Check Form Validation
   const errors = validationResult(req);
   if (!errors.isEmpty())
@@ -234,52 +233,30 @@ exports.update = async function (req, res) {
       errors: errors.array(),
     });
   try {
-    const cek_user = await User.query()
-      // .where((builder) => {
-      //   builder.where("nim", data.nim).orWhere("email", data.email);
-      // })
-      .where("id", id)
-      .then((onCheck) => {
-        console.log("Check, is Exist in other row :", onCheck);
-        return onCheck;
+    await User.query()
+      .patch({
+        nim: data.nim,
+        nama: data.nama,
+        prodi: data.prodi,
+        no_hp: data.no_hp,
+        email: data.email,
+        updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+      })
+      .where("id", req.user.id)
+      .first()
+      .then((resp) => {
+        res.status(200).json({
+          success: true,
+          message: "Data user berhasil di Update",
+          data: resp,
+        });
       })
       .catch((err) => {
-        console.log("err", err);
-        return err;
-      });
-    console.log("CEK USER:", cek_user);
-    // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
-    if (cek_user.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "NIM Sudah Terdaftar !",
-      });
-    } else {
-      const dataUpdate = await User.query()
-        .patch({
-          nama: data.nama,
-          email: data.email,
-          no_hp: data.no_hp,
-          updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
-        })
-        .where("id", id)
-        .returning("nama", "nim", "email")
-        .first()
-        .then((resp) => {
-          console.log("RESP:", resp);
-          res.status(200).json({
-            success: true,
-            message: "Data user berhasil di Update",
-            data: resp,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            success: false,
-            message: "Data user gagal di Update !",
-          });
+        res.status(500).json({
+          success: false,
+          message: "Data user gagal di Update !",
         });
-    }
+      });
   } catch (err) {
     console.log(err);
     res.status(500).json({

@@ -16,9 +16,9 @@ exports.loginValidation = [
 
 exports.updateUserValidation = [
   check("nama", "Nama tidak boleh kosong").not().isEmpty(),
-  // check("username", "Username tidak boleh kosong").not().isEmpty(),
-  // check("telp", "Nomor Telepon tidak boleh kosong").not().isEmpty(),
-  // check("email", "Email tidak valid").isEmail(),
+  check("nim", "NIM tidak boleh kosong").not().isEmpty(),
+  check("email", "Email harus valid!").isEmail(),
+  check("prodi", "Prodi tidak boleh kosong").not().isEmpty(),
 ];
 
 exports.updatePasswordValidation = [

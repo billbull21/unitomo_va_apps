@@ -29,7 +29,7 @@ router.post("/user/forgot-password", forgotPasswordValidation, userApi.forgotPas
 router.post("/user/reset-password", resetPasswordValidation, userApi.resetPassword);
 router.post("/user", createUserValidation, userApi.create);
 router.post("/user/change-password", authenticateJWT, updatePasswordValidation, userApi.updatePassword);
-router.put("/user/:id", authenticateJWT, updateUserValidation, userApi.update);
+router.put("/user", authenticateJWT, updateUserValidation, userApi.update);
 router.delete("/user/:id", userApi.delete);
 router.post("/user/login", loginValidation, userApi.login);
 router.put(

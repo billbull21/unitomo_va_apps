@@ -20,9 +20,9 @@ var userApi = require("../../api/controller/UserController");
 var vaHistoryApi = require("../../api/controller/VAHistoryController");
 var mProdiApi = require("../../api/controller/MProdiController");
 // User
-router.get("/user", userApi.get);
+router.get("/user", authenticateJWT, userApi.get);
 router.get("/user/data", authenticateJWT, userApi.getUserData); // get user data by it's token
-router.get("/user/:nim", userApi.getByNIM);
+router.get("/user/:nim", authenticateJWT, userApi.getByNIM);
 router.get("/user/verification/:otp", authenticateJWT, userApi.otpVerification);
 router.get("/user/resend-verification", authenticateJWT, userApi.resendVerification);
 router.post("/user/forgot-password", forgotPasswordValidation, userApi.forgotPassword);

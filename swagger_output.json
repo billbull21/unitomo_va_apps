@@ -5,7 +5,7 @@
     "description": "Ini adalah dokumentasi api untuk aplikasi VA Universitas Dr. Soetomo Fakultas Teknik",
     "version": "1.0.0"
   },
-  "host": "localhost:5000",
+  "host": "103.117.56.237:5000",
   "basePath": "/v1",
   "schemes": [
     "http"

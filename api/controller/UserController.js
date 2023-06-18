@@ -42,10 +42,31 @@ exports.getUserData = async function (req, res) {
      #swagger.description = 'Endpoint to fetch user data by token' 
   */
   try {
-    return res.status(200).json({
-      success: true,
-      data: req.user,
-    });
+    const cek_user = await knex.raw(
+      `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u.id='${req.user.id}' LIMIT 1`
+    );
+    if (cek_user.rows.length > 0) {
+      const data_user = cek_user.rows[0];
+      const data_jwt = {
+        id: data_user.id,
+        nama: data_user.nama,
+        nim: data_user.nim,
+        prodi_id: data_user.prodi,
+        prodi: data_user.namaprodi,
+        email: data_user.email,
+        no_hp: data_user.no_hp,
+        status: data_user.status,
+      };
+      res.status(200).json({
+        success: true,
+        data: data_jwt,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "User tidak terdaftar!",
+      });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json({

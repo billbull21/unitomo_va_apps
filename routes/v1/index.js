@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
 var userApi = require("../../api/controller/UserController");
 var vaHistoryApi = require("../../api/controller/VAHistoryController");
 var mProdiApi = require("../../api/controller/MProdiController");
+var mKodePayApi = require("../../api/controller/MKodePayController");
 // User
 router.get("/user", authenticateJWT, userApi.get);
 router.get("/user/data", authenticateJWT, userApi.getUserData); // get user data by it's token
@@ -46,5 +47,8 @@ router.get("/va/:id", authenticateJWT, vaHistoryApi.updateStatusVA);
 
 // get master prodi
 router.get("/prodi", mProdiApi.getMasterProdi);
+
+// get master kode pay
+router.get("/paycode", authenticateJWT, mKodePayApi.getMasterKodePay);
 
 module.exports = router;

@@ -32,6 +32,7 @@ exports.forgotPasswordValidation = [
 
 exports.resetPasswordValidation = [
   check("email", "Email harus valid!").isEmail(),
+  check("otp", "OTP wajib diisi!").not().isEmpty(),
   check("password", "Password Baru minimal 6 karakter").isLength({ min: 6 }),
 ];
 

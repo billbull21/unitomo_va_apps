@@ -43,6 +43,7 @@ const doc = {
     },
     ForgotPasswordRequestFormat: {
       $email: "",
+      $otp: "",
     },
     ResetPasswordRequestFormat: {
       $email: "",

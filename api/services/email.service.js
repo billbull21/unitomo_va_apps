@@ -66,12 +66,12 @@ exports.sendEmailOnCreateUserWithTemplate = async function (users) {
     to: users.email, // mengirimkan email notifikasi ke email yg baru diregisterkan
     subject: subjectnya,
     html: htmlnya,
-    attachments: [
-      {
-        filename: "shield.png",
-        path: process.cwd() + "/public/assets/shield.png",
-      },
-    ],
+    // attachments: [
+    //   {
+    //     filename: "shield.png",
+    //     path: process.cwd() + "/public/assets/shield.png",
+    //   },
+    // ],
   };
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
@@ -103,12 +103,12 @@ exports.sendEmailUpdatePasswordWithTemplate = async function (users) {
     to: users.email, // mengirimkan email notifikasi ke email yg baru diregisterkan
     subject: subjectnya,
     html: htmlnya,
-    attachments: [
-      {
-        filename: "shield.png",
-        path: process.cwd() + "/public/assets/shield.png",
-      },
-    ],
+    // attachments: [
+    //   {
+    //     filename: "shield.png",
+    //     path: process.cwd() + "/public/assets/shield.png",
+    //   },
+    // ],
   };
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
@@ -141,12 +141,12 @@ exports.sendEmailForgotPasswordWithTemplate = async function (users) {
     to: users.email, // mengirimkan email notifikasi ke email yg baru diregisterkan
     subject: subjectnya,
     html: htmlnya,
-    attachments: [
-      {
-        filename: "shield.png",
-        path: process.cwd() + "/public/assets/shield.png",
-      },
-    ],
+    // attachments: [
+    //   {
+    //     filename: "shield.png",
+    //     path: process.cwd() + "/public/assets/shield.png",
+    //   },
+    // ],
   };
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {

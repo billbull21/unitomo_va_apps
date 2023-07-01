@@ -126,7 +126,7 @@ exports.create = async function (req, res) {
         errors: errors.array(),
       });
     const data = req.body;
-    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otp = Math.floor(1000 + Math.random() * 9000);
     bcrypt.hash(data.password, 10).then(async (hashedPassword) => {
       await User.query()
         .insert({
@@ -428,7 +428,7 @@ exports.forgotPassword = async function (req, res) {
         message: "User Tidak Terdaftar!",
       });
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000);
+      const otp = Math.floor(1000 + Math.random() * 9000);
       await User.query()
         .patch({
           otp: otp,

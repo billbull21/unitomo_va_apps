@@ -489,7 +489,8 @@ exports.resetPassword = async function (req, res) {
     });
   try {
     const email = data.email;
-    const cek_user = await User.query().where("email", email);
+    const otp = data.otp;
+    const cek_user = await User.query().where("email", email).where("otp", otp);
     // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
     if (cek_user.length == 0) {
       return res.status(400).json({

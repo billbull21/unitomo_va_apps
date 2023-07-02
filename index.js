@@ -10,6 +10,9 @@ const path = require("path");
 const swaggerUI = require("swagger-ui-express");
 const swaggerFile = require("./swagger_output.json");
 
+// Enable CORS for all routes
+app.use(cors());
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 

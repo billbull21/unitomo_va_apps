@@ -273,7 +273,7 @@ exports.update = async function (req, res) {
         });
       })
       .catch((err) => {
-        res.status(500).json({
+        res.status(400).json({
           success: false,
           message: "Data user gagal di Update !",
         });

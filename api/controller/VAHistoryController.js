@@ -163,12 +163,18 @@ exports.insertVA = async function (req, res) {
           });
         })
         .catch(async (error) => {
-          console.log("Result Data From Internal Server", result);
           console.log("ERROR SAVE VA TO BANK JATIM : ", error);
-          VAHistory.query().deleteById(result.id).catch(errDel => console.log('ERROR DELETE', errDel));
-          return res.status(400).json({
+          VAHistory.query().deleteById(result.id)
+          .then(resDel => res.status(400).json({
             success: false,
-            message: `Registrasi Gagal, due to Bank Jatim Server!`,
+            message: `Generate VA Gagal, due to Bank Jatim Server!`,
+          }))
+          .catch(errDel => {
+            console.log('ERROR DELETE', errDel);
+            return res.status(400).json({
+              success: false,
+              message: `Registrasi VA Gagal, due to Bank Jatim Server!`,
+            })
           });
         });
       })

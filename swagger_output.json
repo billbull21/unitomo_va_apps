@@ -556,7 +556,43 @@
         "tags": [
           "VAHistory"
         ],
-        "description": "Endpoint to make it ",
+        "description": "Endpoint to get va history",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "VAHistory"
+        ],
+        "description": "Endpoint to delete va by id",
         "parameters": [
           {
             "name": "id",
@@ -791,6 +827,10 @@
           "type": "string",
           "example": ""
         },
+        "otp": {
+          "type": "string",
+          "example": ""
+        },
         "password": {
           "type": "string",
           "example": ""
@@ -798,6 +838,7 @@
       },
       "required": [
         "email",
+        "otp",
         "password"
       ]
     }

@@ -1,5 +1,4 @@
 const VAHistory = require("../model/VAHistory");
-import extend from './../../node_modules/.staging/moment-8c48bd13/src/lib/utils/extend';
 const axios = require('axios');
 const moment = require('moment');
 

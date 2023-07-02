@@ -4,6 +4,9 @@ const moment = require('moment');
 
 const { validationResult } = require("express-validator");
 
+// must less than 30000 => timeout setting in the app
+const axiosTimeout = 20000;
+
 exports.getVAHistory = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to get va history' 
@@ -40,7 +43,7 @@ exports.getVAHistoryByID = async function (req, res) {
       const dataVa = {
         "VirtualAccount": queryResult[0].va,
       };
-      axios.post('https://jatimva.bankjatim.co.id/Va/CheckStatus', dataVa)
+      axios.post('https://jatimva.bankjatim.co.id/Va/CheckStatus', dataVa, { timeout: axiosTimeout })
       .then((response) => {
         const responseData = response.data;
         if (responseData != null && responseData.FlagLunas == "Y") {
@@ -151,7 +154,7 @@ exports.insertVA = async function (req, res) {
           "FlagProses": 1,
         };
         // CALL API FROM BANK JATIM
-        axios.post('https://apps.bankjatim.co.id/Api/Registrasi', dataVa)
+        axios.post('https://apps.bankjatim.co.id/Api/Registrasi', dataVa, { timeout: axiosTimeout })
         .then((response) => {
           return res.status(200).json({
             success: true,

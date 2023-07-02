@@ -3,6 +3,7 @@ const knex = require("./db/knex");
 const PORT = 5000;
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const cors = require("cors");
 const routerV1 = require("./routes/v1/index");
 const app = express();
 const path = require("path");

@@ -4,6 +4,9 @@ const moment = require('moment');
 
 const { validationResult } = require("express-validator");
 
+// must less than 30000 => timeout setting in the app
+const axiosTimeout = 20000;
+
 exports.getVAHistory = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to get va history' 
@@ -40,8 +43,8 @@ exports.getVAHistoryByID = async function (req, res) {
       const dataVa = {
         "VirtualAccount": queryResult[0].va,
       };
-      axios.post('https://jatimva.bankjatim.co.id/Va/CheckStatus', dataVa)
-      .then(response => {
+      axios.post('https://jatimva.bankjatim.co.id/Va/CheckStatus', dataVa, { timeout: axiosTimeout })
+      .then((response) => {
         const responseData = response.data;
         if (responseData != null && responseData.FlagLunas == "Y") {
           VAHistory.query()
@@ -70,7 +73,7 @@ exports.getVAHistoryByID = async function (req, res) {
           data: queryResult[0],
         });
       })
-      .catch(async error => {
+      .catch(async (error) => {
         return res.status(400).json({
           success: false,
           message: `Gagal mengambil detail, due to Bank Jatim Server!`,
@@ -151,17 +154,17 @@ exports.insertVA = async function (req, res) {
           "FlagProses": 1,
         };
         // CALL API FROM BANK JATIM
-        axios.post('https://apps.bankjatim.co.id/Api/Registrasi', dataVa)
-        .then(response => {
+        axios.post('https://apps.bankjatim.co.id/Api/Registrasi', dataVa, { timeout: axiosTimeout })
+        .then((response) => {
           return res.status(200).json({
             success: true,
             message: "Anda Berhasil Mengisi Riwayat Pembayaran!",
             data: result,
           });
         })
-        .catch(async error => {
+        .catch(async (error) => {
           console.log("ERROR SAVE VA TO BANK JATIM : ", error);
-          await VAHistory.query().deleteById(result.id);
+          VAHistory.query().deleteById(result.id);
           return res.status(400).json({
             success: false,
             message: `Registrasi Gagal, due to Bank Jatim Server!`,
@@ -245,7 +248,7 @@ exports.insertVA = async function (req, res) {
 // };
 
 exports.delete = async function (req, res) {
-  /* #swagger.tags = ['User']
+  /* #swagger.tags = ['VAHistory']
      #swagger.description = 'Endpoint to delete va by id' 
   */
   try {

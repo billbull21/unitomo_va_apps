@@ -36,10 +36,10 @@ const doc = {
       $new_password: "",
     },
     VAHistoryRequestFormat: {
-      $user_id: "",
       $va: "",
       $payment_category: "",
       $nominal: 0,
+      $parsial: false,
     },
     ForgotPasswordRequestFormat: {
       $email: "",

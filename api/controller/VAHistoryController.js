@@ -153,8 +153,12 @@ exports.insertVA = async function (req, res) {
           "Berita5": "-",
           "FlagProses": 1,
         };
+        var url = "https://jatimva.bankjatim.co.id/Va/Reg";
+        if (data.parsial) {
+          url = "https://jatimva.bankjatim.co.id/Va/RegPen";
+        }
         // CALL API FROM BANK JATIM
-        axios.post('https://apps.bankjatim.co.id/Api/Registrasi', dataVa, { timeout: axiosTimeout })
+        axios.post(url, dataVa, { timeout: axiosTimeout })
         .then((response) => {
           return res.status(200).json({
             success: true,

@@ -158,7 +158,7 @@ exports.create = async function (req, res) {
               status: 0, // default
             };
             const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET);
-            await sendEmailOnCreateUserWithTemplate(users);
+            sendEmailOnCreateUserWithTemplate(users);
             return res.status(200).json({
               success: true,
               message:
@@ -335,7 +335,7 @@ exports.updatePassword = async function (req, res) {
                 .first()
                 .then(async (users) => {
                   if (data.email) {
-                    await sendEmailUpdatePasswordWithTemplate({
+                    sendEmailUpdatePasswordWithTemplate({
                       nama: users.nama,
                       email: cek_user[0].email,
                     });
@@ -380,7 +380,7 @@ exports.resendVerification = async function (req, res) {
       });
     } else {
       const users = cek_user.rows[0];
-      await sendEmailOnCreateUserWithTemplate(users);
+      sendEmailOnCreateUserWithTemplate(users);
       return res.status(200).json({
         success: true,
         message: "Silahkan cek ulang email Anda!",
@@ -437,7 +437,7 @@ exports.forgotPassword = async function (req, res) {
         .returning(["nama"])
         .first()
         .then(async (users) => {
-          await sendEmailForgotPasswordWithTemplate({
+          sendEmailForgotPasswordWithTemplate({
             otp: otp,
             nama: users.nama,
             email: email,
@@ -508,7 +508,7 @@ exports.resetPassword = async function (req, res) {
           .first()
           .then(async (users) => {
             if (data.email) {
-              await sendEmailUpdatePasswordWithTemplate({
+              sendEmailUpdatePasswordWithTemplate({
                 nama: users.nama,
                 email: email,
               });

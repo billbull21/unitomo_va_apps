@@ -333,10 +333,10 @@ exports.updatePassword = async function (req, res) {
                 .where("id", req.user.id)
                 .returning(["nama"])
                 .first()
-                .then(async (users) => {
-                  if (data.email) {
+                .then(async (user) => {
+                  if (user.email) {
                     sendEmailUpdatePasswordWithTemplate({
-                      nama: users.nama,
+                      nama: user.nama,
                       email: cek_user[0].email,
                     });
                     return res.status(200).json({

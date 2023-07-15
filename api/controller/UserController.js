@@ -331,7 +331,7 @@ exports.updatePassword = async function (req, res) {
                   updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
                 })
                 .where("id", req.user.id)
-                .returning(["nama"])
+                .returning(["email","nama"])
                 .first()
                 .then(async (user) => {
                   if (user.email) {

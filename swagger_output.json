@@ -784,10 +784,6 @@
     "VAHistoryRequestFormat": {
       "type": "object",
       "properties": {
-        "user_id": {
-          "type": "string",
-          "example": ""
-        },
         "va": {
           "type": "string",
           "example": ""
@@ -799,13 +795,17 @@
         "nominal": {
           "type": "number",
           "example": 0
+        },
+        "parsial": {
+          "type": "boolean",
+          "example": false
         }
       },
       "required": [
-        "user_id",
         "va",
         "payment_category",
-        "nominal"
+        "nominal",
+        "parsial"
       ]
     },
     "ForgotPasswordRequestFormat": {

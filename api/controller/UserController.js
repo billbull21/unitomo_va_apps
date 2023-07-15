@@ -308,7 +308,6 @@ exports.updatePassword = async function (req, res) {
     });
   try {
     const cek_user = await User.query().where("id", req.user.id);
-    console.log("CEK USER:", cek_user);
     // Cek Jika data ada, maka beri return Data Email dna Username sudah terdaftar;
     if (cek_user.length == 0) {
       return res.status(400).json({
@@ -331,7 +330,7 @@ exports.updatePassword = async function (req, res) {
                   password: hashedPassword,
                   updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
                 })
-                .where("id", id)
+                .where("id", req.user.id)
                 .returning(["nama"])
                 .first()
                 .then(async (users) => {

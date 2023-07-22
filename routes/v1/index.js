@@ -44,7 +44,7 @@ router.put(
 router.get("/va", authenticateJWT, vaHistoryApi.getVAHistory);
 router.post("/va", authenticateJWT, insertHistoryVAValidation, vaHistoryApi.insertVA);
 router.get("/va/:id", authenticateJWT, vaHistoryApi.getVAHistoryByID);
-// router.put("/va/:id", authenticateJWT, vaHistoryApi.extendVAExpiredDate);
+router.put("/va/:id", authenticateJWT, vaHistoryApi.extendVAExpiredDate);
 router.delete("/va/:id", authenticateJWT, vaHistoryApi.delete);
 
 // get master prodi

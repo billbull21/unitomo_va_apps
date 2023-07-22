@@ -97,14 +97,14 @@ exports.getVAHistoryByID = async function (req, res) {
 exports.insertVA = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to insert va history' 
-*/
+  */
   /* #swagger.parameters['body'] = {
     name: 'VAHistory',
     in: 'body',
     description: 'Payment information.',
     required: true,
     schema: { $ref: '#/definitions/VAHistoryRequestFormat' }
-} */
+  } */
 
   try {
     const errors = validationResult(req);
@@ -120,12 +120,24 @@ exports.insertVA = async function (req, res) {
     // Add one day to the current date and time
     const futureTime = currentTime.add(1, 'day');
 
+    var userID = req.user.id;
+    var vaName = req.user.nama;
+
+    // admin can create va for other users
+    if (req.user.isAdmin && data.user_id) {
+      userID = data.user_id;
+    }
+    if (req.user.isAdmin && data.va_name) {
+      vaName = data.va_name;
+    }
+
     await VAHistory.query()
       .insert({
-        user_id: req.user.id,
+        user_id: userID,
         va: data.va,
         payment_category: data.payment_category,
         nominal: data.nominal,
+        va_name: vaName,
         expired_date: futureTime.format('YYYY-MM-DD HH:mm:ss'),
       })
       .returning([
@@ -143,7 +155,7 @@ exports.insertVA = async function (req, res) {
 
         const dataVa = {
           "VirtualAccount": data.va,
-          "Nama": req.user.nama,
+          "Nama": vaName,
           "TotalTagihan": data.nominal,
           "TanggalExp": formattedTime,
           "Berita1": data.payment_category,
@@ -152,6 +164,109 @@ exports.insertVA = async function (req, res) {
           "Berita4": "-",
           "Berita5": "-",
           "FlagProses": 1,
+        };
+        var url = "https://jatimva.bankjatim.co.id/Va/Reg";
+        if (data.parsial) {
+          url = "https://jatimva.bankjatim.co.id/Va/RegPen";
+        }
+        // CALL API FROM BANK JATIM
+        axios.post(url, dataVa, { timeout: axiosTimeout })
+        .then((response) => {
+          return res.status(200).json({
+            success: true,
+            message: "Anda Berhasil Mengisi Riwayat Pembayaran!",
+            data: result,
+          });
+        })
+        .catch(async (error) => {
+          console.log("ERROR SAVE VA TO BANK JATIM : ", error);
+          VAHistory.query().deleteById(result.id)
+          .then(resDel => res.status(400).json({
+            success: false,
+            message: `Generate VA Gagal, due to Bank Jatim Server!`,
+          }))
+          .catch(errDel => {
+            console.log('ERROR DELETE', errDel);
+            return res.status(400).json({
+              success: false,
+              message: `Registrasi VA Gagal, due to Bank Jatim Server!`,
+            })
+          });
+        });
+      })
+      .catch((error) => {
+        console.log("ERROR SAVE", error);
+        if (error.nativeError) {
+          if (error.nativeError.code == 23505) {
+            return res.status(400).json({
+              success: false,
+              message: `Maaf, no. ${error.columns} sudah dibuat sebelumnya!`,
+            });
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          message: `Registrasi Gagal`,
+        });
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Input data failed, Internal server error !",
+    });
+  }
+};
+
+exports.extendVAExpiredDate = async function (req, res) {
+  /* #swagger.tags = ['VAHistory']
+    #swagger.description = 'Endpoint to update va history' 
+  */
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+
+    const currentTime = moment(); // Current date and time
+
+    // Add one day to the current date and time
+    const futureTime = currentTime.add(1, 'day');
+
+    await VAHistory.query()
+      .patch({
+        expired_date: futureTime.format('YYYY-MM-DD HH:mm:ss'),
+        updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+      })
+      .where("va", req.params.id)
+      .returning([
+        "id",
+        "user_id",
+        "va",
+        "va_name",
+        "payment_category",
+        "nominal",
+        "created_at",
+      ])
+      .then(async (result) => {
+
+        // Format the future time
+        const formattedTime = futureTime.format('YYYYMMDD');
+
+        const dataVa = {
+          "VirtualAccount": result.va,
+          "Nama": result.va_name,
+          "TotalTagihan": result.nominal,
+          "TanggalExp": formattedTime,
+          "Berita1": result.payment_category,
+          "Berita2": "-",
+          "Berita3": "-",
+          "Berita4": "-",
+          "Berita5": "-",
+          "FlagProses": 2, // update
         };
         var url = "https://jatimva.bankjatim.co.id/Va/Reg";
         if (data.parsial) {

@@ -17,7 +17,7 @@ exports.get = async function (req, res) {
   */
   try {
     let users = await User.query();
-    if (users.length > 0) {
+    if (users.length > 0 && req.user.isAdmin) {
       return res.status(200).json({
         success: true,
         data: users,
@@ -56,6 +56,7 @@ exports.getUserData = async function (req, res) {
         email: data_user.email,
         no_hp: data_user.no_hp,
         status: data_user.status,
+        isAdmin: data_user.isAdmin,
       };
       res.status(200).json({
         success: true,
@@ -156,6 +157,7 @@ exports.create = async function (req, res) {
               email: users.email,
               no_hp: users.no_hp,
               status: 0, // default
+              isAdmin: users.isAdmin,
             };
             const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET);
             sendEmailOnCreateUserWithTemplate(users);
@@ -611,6 +613,7 @@ exports.login = async function (req, res, next) {
               email: data_user.email,
               no_hp: data_user.no_hp,
               status: data_user.status,
+              isAdmin: data_user.isAdmin,
             };
             const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET, {
               expiresIn: "10m",

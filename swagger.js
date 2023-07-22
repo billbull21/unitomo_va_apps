@@ -36,7 +36,9 @@ const doc = {
       $new_password: "",
     },
     VAHistoryRequestFormat: {
+      $user_id: "input this if you are admin, if you aren't optional",
       $va: "",
+      $va_name: "*optional",
       $payment_category: "",
       $nominal: 0,
       $parsial: false,

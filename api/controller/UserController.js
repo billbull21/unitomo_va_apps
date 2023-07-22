@@ -615,9 +615,7 @@ exports.login = async function (req, res, next) {
               status: data_user.status,
               isAdmin: data_user.isAdmin,
             };
-            const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET, {
-              expiresIn: "10m",
-            });
+            const jwt_token = jwt.sign(data_jwt, process.env.API_SECRET);
             res.status(200).json({
               success: true,
               data: data_jwt,

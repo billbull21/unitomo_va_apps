@@ -1,13 +1,14 @@
 const knex = require("../../db/knex");
-var MKodePay = require("../model/MKodePay");
 
 exports.getMasterKodePay = async function (req, res) {
   /* #swagger.tags = ['MKodePay']
     #swagger.description = 'Endpoint to get all master prodi' 
-*/
+  */
   try {
-    let queryResult = await knex.raw(
-      `select * from m_kode_pay where (coalesce(kdprodi, '') = '' or kdprodi = '${req.user.prodi_id}')`
+    let userID = req.user.prodi_id;
+    if (req.params.id) userID = req.params.id;
+    const queryResult = await knex.raw(
+      `select * from m_kode_pay where (coalesce(kdprodi, '') = '' or kdprodi = '${userID}')`
     );
     return res.status(200).json({
       success: true,

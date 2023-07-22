@@ -52,5 +52,6 @@ router.get("/prodi", mProdiApi.getMasterProdi);
 
 // get master kode pay
 router.get("/paycode", authenticateJWT, mKodePayApi.getMasterKodePay);
+router.get("/paycode/:id", authenticateJWT, mKodePayApi.getMasterKodePay);
 
 module.exports = router;

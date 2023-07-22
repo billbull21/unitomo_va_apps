@@ -13,10 +13,10 @@ const MProdi = require("../model/MProdi");
 
 exports.get = async function (req, res) {
   /* #swagger.tags = ['User']
-     #swagger.description = 'Endpoint to fetch all users' 
+    #swagger.description = 'Endpoint to fetch all users' 
   */
   try {
-    let users = await User.query();
+    let users = await User.query().where('isAdmin', false);
     if (users.length > 0 && req.user.isAdmin) {
       return res.status(200).json({
         success: true,
@@ -39,7 +39,7 @@ exports.get = async function (req, res) {
 
 exports.getUserData = async function (req, res) {
   /* #swagger.tags = ['User']
-     #swagger.description = 'Endpoint to fetch user data by token' 
+    #swagger.description = 'Endpoint to fetch user data by token' 
   */
   try {
     const cek_user = await knex.raw(

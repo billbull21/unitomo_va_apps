@@ -16,7 +16,9 @@ exports.get = async function (req, res) {
     #swagger.description = 'Endpoint to fetch all users' 
   */
   try {
-    let users = await User.query().where('isAdmin', false);
+    let users = await knex.raw(
+      `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u.isAdmin=false AND u.status=1`
+    );
     if (users.length > 0 && req.user.isAdmin) {
       return res.status(200).json({
         success: true,

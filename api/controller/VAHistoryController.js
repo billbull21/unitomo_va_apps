@@ -13,9 +13,9 @@ exports.getAllVAHistory = async function (req, res) {
     #swagger.description = 'Endpoint to get va history' 
 */
   try {
-    const search = req.query.search ?? "";
-    const page = req.query.page ?? 1;
-    const limit = req.query.limit ?? 10;
+    const search = req.query.search != null ? req.query.search : "";
+    const page = req.query.page != null ? req.query.page : 1;
+    const limit = req.query.limit != null ? req.query.limit : 10;
     const offset = (page - 1) * limit;
     let queryResult = await knex.raw(
       `select * from t_va_user where concat(va, va_name, payment_category) ilike '%${search}%' ORDER BY created_at DESC offset ${offset} limit ${limit}`
@@ -39,9 +39,9 @@ exports.getVAHistory = async function (req, res) {
     #swagger.description = 'Endpoint to get va history' 
 */
   try {
-    const search = req.query.search ?? "";
-    const page = req.query.page ?? 1;
-    const limit = req.query.limit ?? 10;
+    const search = req.query.search != null ? req.query.search : "";
+    const page = req.query.page != null ? req.query.page : 1;
+    const limit = req.query.limit != null ? req.query.limit : 10;
     const offset = (page - 1) * limit;
     let queryResult = await knex.raw(
       `select * from t_va_user where concat(va, va_name, payment_category) ilike '%${search}%' and user_id = '${req.user.id}' order by created_at desc offset ${offset} limit ${limit}`

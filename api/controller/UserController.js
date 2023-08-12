@@ -16,9 +16,9 @@ exports.get = async function (req, res) {
     #swagger.description = 'Endpoint to fetch all users' 
   */
   try {
-    const search = req.query.search ?? "";
-    const page = req.query.page ?? 1;
-    const limit = req.query.limit ?? 10;
+    const search = req.query.search != null ? req.query.search : "";
+    const page = req.query.page != null ? req.query.page : 1;
+    const limit = req.query.limit != null ? req.query.limit : 10;
     const offset = (page - 1) * limit;
     let check_rows = await knex.raw(
       `select u.*, mp.namaprodi from users u join m_prodi mp on mp.kdprodi = u.prodi where u."isAdmin"=false AND u.status=1 AND CONCAT(nim,nama,email,prodi) ILIKE '%${search}%' ORDER BY created_at DESC offset ${offset} limit ${limit}`

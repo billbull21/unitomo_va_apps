@@ -41,6 +41,7 @@ router.put(
 );
 
 // VA Payment History User
+router.get("/all-va", authenticateJWT, vaHistoryApi.getAllVAHistory);
 router.get("/va", authenticateJWT, vaHistoryApi.getVAHistory);
 router.post("/va", authenticateJWT, insertHistoryVAValidation, vaHistoryApi.insertVA);
 router.get("/va/:id", authenticateJWT, vaHistoryApi.getVAHistoryByID);

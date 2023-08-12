@@ -7,8 +7,9 @@ exports.getMasterKodePay = async function (req, res) {
   try {
     let userID = req.user.prodi_id;
     if (req.params.id) userID = req.params.id;
+    // if admin can show all
     const queryResult = await knex.raw(
-      `select * from m_kode_pay where (coalesce(kdprodi, '') = '' or kdprodi = '${userID}')`
+      `select * from m_kode_pay` + req.user.isAdmin ? `` : ` where (coalesce(kdprodi, '') = '' or kdprodi = '${userID}')`
     );
     return res.status(200).json({
       success: true,

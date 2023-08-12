@@ -1,21 +1,54 @@
 const VAHistory = require("../model/VAHistory");
 const axios = require('axios');
 const moment = require('moment');
+const knex = require("../../db/knex");
 
 const { validationResult } = require("express-validator");
 
 // must less than 30000 => timeout setting in the app
 const axiosTimeout = 20000;
 
+exports.getAllVAHistory = async function (req, res) {
+  /* #swagger.tags = ['VAHistory']
+    #swagger.description = 'Endpoint to get va history' 
+*/
+  try {
+    const search = req.query.search ?? "";
+    const page = req.query.page ?? 1;
+    const limit = req.query.limit ?? 10;
+    const offset = (page - 1) * limit;
+    let queryResult = await knex.raw(
+      `select * from t_va_user where concat(va, va_name, payment_category) ilike '%${search}%' ORDER BY created_at DESC offset ${offset} limit ${limit}`
+    );
+    console.log("QUERY RESULT :: ", queryResult);
+    return res.status(200).json({
+      success: true,
+      data: queryResult.rows,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 exports.getVAHistory = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to get va history' 
 */
   try {
-    let queryResult = await VAHistory.query().where("user_id", req.user.id).orderBy("updated_at", "desc");
+    const search = req.query.search ?? "";
+    const page = req.query.page ?? 1;
+    const limit = req.query.limit ?? 10;
+    const offset = (page - 1) * limit;
+    let queryResult = await knex.raw(
+      `select * from t_va_user where concat(va, va_name, payment_category) ilike '%${search}%' and user_id = '${req.user.id}' order by created_at desc offset ${offset} limit ${limit}`
+    );
     return res.status(200).json({
       success: true,
-      data: queryResult,
+      data: queryResult.rows,
     });
   } catch (err) {
     console.log(err);

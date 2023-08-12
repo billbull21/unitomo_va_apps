@@ -8,9 +8,11 @@ exports.getMasterKodePay = async function (req, res) {
     let userID = req.user.prodi_id;
     if (req.params.id) userID = req.params.id;
     // if admin can show all
-    const queryResult = await knex.raw(
-      `select * from m_kode_pay` + req.user.isAdmin ? `` : ` where (coalesce(kdprodi, '') = '' or kdprodi = '${userID}')`
-    );
+    var query = `select * from m_kode_pay`;
+    if (!req.user.isAdmin) {
+      query += ` where (coalesce(kdprodi, '') = '' or kdprodi = '${userID}')`;
+    }
+    const queryResult = await knex.raw(query);
     return res.status(200).json({
       success: true,
       data: queryResult.rows,

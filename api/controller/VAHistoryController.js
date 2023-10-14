@@ -150,8 +150,11 @@ exports.insertVA = async function (req, res) {
 
     const currentTime = moment(); // Current date and time
 
+    var maxExpired = 3;
+    if (data.parsial) maxExpired = 18;
+
     // Add one day to the current date and time
-    const futureTime = currentTime.add(1, 'day');
+    const futureTime = currentTime.add(maxExpired, 'month');
 
     var userID = req.user.id;
     var vaName = req.user.nama;

@@ -201,9 +201,9 @@ exports.insertVA = async function (req, res) {
           "Berita5": "-",
           "FlagProses": 1,
         };
-        var url = "https://jatimva.bankjatim.co.id/Va/Reg";
+        var url = "https://jatimva.bankjatim.co.id/Va/RegPen";
         if (data.parsial) {
-          url = "https://jatimva.bankjatim.co.id/Va/RegPen";
+          url = "https://jatimva.bankjatim.co.id/Va/Reg";
         }
         // CALL API FROM BANK JATIM
         axios.post(url, dataVa, { timeout: axiosTimeout })

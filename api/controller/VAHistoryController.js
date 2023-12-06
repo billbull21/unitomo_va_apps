@@ -414,18 +414,22 @@ exports.delete = async function (req, res) {
      #swagger.description = 'Endpoint to delete va by id' 
   */
   try {
-    let users = await VAHistory.query().deleteById(req.params.id);
-    if (users == 1) {
-      res.status(200).json({
-        success: true,
-        message: "Data berhasil dihapus!",
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "Data tidak ditemukan!",
-      });
-    }
+    // let users = await VAHistory.query().deleteById(req.params.id);
+    // if (users == 1) {
+    //   res.status(200).json({
+    //     success: true,
+    //     message: "Data berhasil dihapus!",
+    //   });
+    // } else {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Data tidak ditemukan!",
+    //   });
+    // }
+    return res.status(400).json({
+      success: false,
+      message: "Anda tidak bisa hapus data!",
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({

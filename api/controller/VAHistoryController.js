@@ -258,12 +258,6 @@ exports.extendVAExpiredDate = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to extend VA expired DATE' 
   */
-  /* #swagger.parameters['body'] = {
-    name: 'VA Payment',
-    in: 'body',
-    description: 'Payment information.',
-    required: true,
-  } */
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty())
@@ -272,7 +266,7 @@ exports.extendVAExpiredDate = async function (req, res) {
         errors: errors.array(),
       });
 
-    const { isParsial } = req.body;
+    const { isParsial } = req.query;
     
     const transaction = await knex.transaction();
 

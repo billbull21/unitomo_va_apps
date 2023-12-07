@@ -272,7 +272,7 @@ exports.extendVAExpiredDate = async function (req, res) {
     const currentTime = moment(); // Current date and time
 
     var maxExpired = 3;
-    if (data.parsial) maxExpired = 18;
+    // if (data.parsial) maxExpired = 18;
 
     // set max expired
     const futureTime = currentTime.add(maxExpired, 'month');

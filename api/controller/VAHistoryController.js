@@ -258,7 +258,12 @@ exports.extendVAExpiredDate = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
     #swagger.description = 'Endpoint to extend VA expired DATE' 
   */
-
+  /* #swagger.parameters['body'] = {
+    name: 'VA Payment',
+    in: 'body',
+    description: 'Payment information.',
+    required: true,
+  } */
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty())
@@ -266,13 +271,15 @@ exports.extendVAExpiredDate = async function (req, res) {
         success: false,
         errors: errors.array(),
       });
+
+    const { isParsial } = req.body;
     
     const transaction = await knex.transaction();
 
     const currentTime = moment(); // Current date and time
 
     var maxExpired = 3;
-    // if (data.parsial) maxExpired = 18;
+    if (isParsial) maxExpired = 18;
 
     // set max expired
     const futureTime = currentTime.add(maxExpired, 'month');
@@ -310,7 +317,7 @@ exports.extendVAExpiredDate = async function (req, res) {
       "FlagProses": 2, // update
     };
     var url = "https://jatimva.bankjatim.co.id/Va/RegPen";
-    if (data.parsial) {
+    if (isParsial) {
       url = "https://jatimva.bankjatim.co.id/Va/Reg";
     }
     // CALL API FROM BANK JATIM

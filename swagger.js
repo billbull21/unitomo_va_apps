@@ -2,7 +2,7 @@ require("dotenv").config();
 const swaggerAutogen = require("swagger-autogen")();
 const outputFile = "./swagger_output.json";
 const endpointsFiles = ["./routes/v1/index.js"]; // root file dimana router dijalankan.
-const { BASE_URL } = process.env;
+const { BASE_URL, SCHEME } = process.env;
 const doc = {
   info: {
     title: "Unitomo VA Payment",
@@ -10,7 +10,7 @@ const doc = {
   },
   host: `${BASE_URL}`,
   basePath: "/v1",
-  schemes: ["http", "https"],
+  schemes: [`${SCHEME}`],
   definitions: {
     UserRequestFormat: {
       $nim: "",

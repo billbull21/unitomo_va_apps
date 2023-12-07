@@ -266,7 +266,7 @@ exports.extendVAExpiredDate = async function (req, res) {
         errors: errors.array(),
       });
 
-    const { isParsial } = req.query;
+    const { va, isParsial } = req.params;
     
     const transaction = await knex.transaction();
 
@@ -283,7 +283,7 @@ exports.extendVAExpiredDate = async function (req, res) {
         expired_date: futureTime.format('YYYY-MM-DD HH:mm:ss'),
         updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
       })
-      .where("va", req.params.va)
+      .where("va", va)
       //.andWhere("status", )
       .returning([
         "id",

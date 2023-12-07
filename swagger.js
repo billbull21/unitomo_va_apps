@@ -10,7 +10,7 @@ const doc = {
   },
   host: `${BASE_URL}`,
   basePath: "/v1",
-  schemes: ["http"],
+  schemes: ["http", "https"],
   definitions: {
     UserRequestFormat: {
       $nim: "",

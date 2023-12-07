@@ -256,7 +256,7 @@ exports.insertVA = async function (req, res) {
 
 exports.extendVAExpiredDate = async function (req, res) {
   /* #swagger.tags = ['VAHistory']
-    #swagger.description = 'Endpoint to update va history' 
+    #swagger.description = 'Endpoint to extend VA expired DATE' 
   */
 
   try {
@@ -266,18 +266,24 @@ exports.extendVAExpiredDate = async function (req, res) {
         success: false,
         errors: errors.array(),
       });
+    
+    const transaction = await knex.transaction();
 
     const currentTime = moment(); // Current date and time
 
-    // Add one day to the current date and time
-    const futureTime = currentTime.add(1, 'day');
+    var maxExpired = 3;
+    if (data.parsial) maxExpired = 18;
 
-    await VAHistory.query()
+    // set max expired
+    const futureTime = currentTime.add(maxExpired, 'month');
+
+    const result = await VAHistory.query(transaction)
       .patch({
         expired_date: futureTime.format('YYYY-MM-DD HH:mm:ss'),
         updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
       })
-      .where("va", req.params.id)
+      .where("va", req.params.va)
+      //.andWhere("status", )
       .returning([
         "id",
         "user_id",
@@ -286,70 +292,68 @@ exports.extendVAExpiredDate = async function (req, res) {
         "payment_category",
         "nominal",
         "created_at",
-      ])
-      .then(async (result) => {
+      ]);
 
-        // Format the future time
-        const formattedTime = futureTime.format('YYYYMMDD');
+    // Format the future time
+    const formattedTime = futureTime.format('YYYYMMDD');
 
-        const dataVa = {
-          "VirtualAccount": result.va,
-          "Nama": result.va_name,
-          "TotalTagihan": result.nominal,
-          "TanggalExp": formattedTime,
-          "Berita1": result.payment_category,
-          "Berita2": "-",
-          "Berita3": "-",
-          "Berita4": "-",
-          "Berita5": "-",
-          "FlagProses": 2, // update
-        };
-        var url = "https://jatimva.bankjatim.co.id/Va/Reg";
-        if (data.parsial) {
-          url = "https://jatimva.bankjatim.co.id/Va/RegPen";
-        }
-        // CALL API FROM BANK JATIM
-        axios.post(url, dataVa, { timeout: axiosTimeout })
-        .then((response) => {
-          return res.status(200).json({
-            success: true,
-            message: "Anda Berhasil Mengisi Riwayat Pembayaran!",
-            data: result,
-          });
-        })
-        .catch(async (error) => {
-          console.log("ERROR SAVE VA TO BANK JATIM : ", error);
-          VAHistory.query().deleteById(result.id)
-          .then(resDel => res.status(400).json({
-            success: false,
-            message: `Generate VA Gagal, due to Bank Jatim Server!`,
-          }))
-          .catch(errDel => {
-            console.log('ERROR DELETE', errDel);
-            return res.status(400).json({
-              success: false,
-              message: `Registrasi VA Gagal, due to Bank Jatim Server!`,
-            })
-          });
-        });
-      })
-      .catch((error) => {
-        console.log("ERROR SAVE", error);
-        if (error.nativeError) {
-          if (error.nativeError.code == 23505) {
-            return res.status(400).json({
-              success: false,
-              message: `Maaf, no. ${error.columns} sudah dibuat sebelumnya!`,
-            });
-          }
-        }
-        return res.status(400).json({
-          success: false,
-          message: `Registrasi Gagal`,
-        });
+    const dataVa = {
+      "VirtualAccount": result.va,
+      "Nama": result.va_name,
+      "TotalTagihan": result.nominal,
+      "TanggalExp": formattedTime,
+      "Berita1": result.payment_category,
+      "Berita2": "-",
+      "Berita3": "-",
+      "Berita4": "-",
+      "Berita5": "-",
+      "FlagProses": 2, // update
+    };
+    var url = "https://jatimva.bankjatim.co.id/Va/RegPen";
+    if (data.parsial) {
+      url = "https://jatimva.bankjatim.co.id/Va/Reg";
+    }
+    // CALL API FROM BANK JATIM
+    try {
+      await axios.post(url, dataVa, { timeout: axiosTimeout });
+      await transaction.commit();
+
+      // logging
+      // await Log.query().insert({
+      //   table_lookup: "t_va_user",
+      //   actions: "Extend Expired Date VA",
+      //   id_trans: resultSave.id,
+      //   id_user: userID,
+      //   ip_address: ip_address_client,
+      //   user_agent: user_agent_client,
+      //   keterangan: "",
+      //   additional_info: {},
+      // });
+
+      return res.status(200).json({
+        success: true,
+        message: "Anda Berhasil Menambah Masa Expired Pembayaran!",
+        data: result,
       });
+    } catch (errorBankJatim) {
+      console.log("ERROR UPDATE VA TO BANK JATIM : ", errorBankJatim);
+      await transaction.rollback();
+      return res.status(400).json({
+        success: false,
+        message: `Maaf, terjadi kesalahan pada sistem bank jatim!`,
+      });
+    }
   } catch (error) {
     console.log(error);
+    await transaction.rollback();
+    if (error.nativeError) {
+      if (error.nativeError.code == 23505) {
+        return res.status(400).json({
+          success: false,
+          message: `Maaf, no. ${error.columns} sudah dibuat sebelumnya!`,
+        });
+      }
+    }
     return res.status(500).json({
       success: false,
       message: "Input data failed, Internal server error !",
